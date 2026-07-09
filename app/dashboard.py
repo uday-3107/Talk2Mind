@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import streamlit as st
-import sys, os
+import sys, os, io
 import numpy as np
 import cv2
 import torch
@@ -361,11 +361,25 @@ def _checkin_page():
                 st.session_state["gradcam_img"] = None
 
             import librosa
-            y, sr = librosa.load(audio_file, sr=16000)
-            from src.speech.preprocess_speech import extract_features
             import tempfile
+            import subprocess as sp
+            from src.speech.preprocess_speech import extract_features
+
+            raw_bytes = audio_file.getvalue()
+            import soundfile as sf
+            try:
+                y, sr = librosa.load(io.BytesIO(raw_bytes), sr=16000)
+            except Exception:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wav_tmp:
+                    wav_path = wav_tmp.name
+                    proc = sp.run(
+                        ["ffmpeg", "-i", "pipe:0", "-f", "wav", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1", "pipe:1"],
+                        input=raw_bytes, capture_output=True, check=True
+                    )
+                    wav_tmp.write(proc.stdout)
+                y, sr = librosa.load(wav_path, sr=16000)
+                os.remove(wav_path)
             with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
-                import soundfile as sf
                 sf.write(tmp.name, y, sr)
                 feat = extract_features(tmp.name)
             speech_model = build_speech_embedder()

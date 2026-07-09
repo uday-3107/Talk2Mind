@@ -14,6 +14,8 @@ def extract_features(filepath):
     y, sr = librosa.load(filepath, sr=16000)
 
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)          # (13, T)
+    if mfcc.shape[1] < 9:
+        mfcc = np.pad(mfcc, ((0, 0), (0, 9 - mfcc.shape[1])), mode="constant")
     mfcc_delta = librosa.feature.delta(mfcc)                     # (13, T)
     rms = librosa.feature.rms(y=y)                               # (1, T)
     pitch, _, _ = librosa.pyin(y, fmin=50, fmax=500)

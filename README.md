@@ -8,11 +8,11 @@ A multimodal AI-based mental well-being screening system combining **facial expr
 |---|---|
 | **Language** | Python 3.11+ |
 | **Total Python files** | 19 |
-| **Total source lines** | 2,333 |
+| **Total source lines** | 2,349 |
 | **Directories** | 22 |
 | **Trained models** | 2 (ResNet18 + BiLSTM) |
 | **API endpoints** | 5 |
-| **Dependencies** | 20 packages |
+| **Dependencies** | 20 Python packages + ffmpeg |
 | **Evaluation artifacts** | 10 files (reports + images) |
 
 **How it works:** A user submits a webcam photo, a voice recording, and answers 9 PHQ-9 questions. The facial model (ResNet18, ~65% accuracy on FER-2013) predicts 6 emotion probabilities. The speech model (BiLSTM, ~42-44% on CREMA-D) does the same. The questionnaire is scored on a 0-27 scale (normalized to 0-100). A weighted fusion formula (facial 25%, speech 25%, questionnaire 50%) computes a final distress score with severity bands. A Groq LLM (llama-3.3-70b-versatile) rephrases questions conversationally and generates an empathetic summary. Session history enables trend tracking.
@@ -73,6 +73,7 @@ A multimodal AI-based mental well-being screening system combining **facial expr
 - **Groq API (llama-3.3-70b-versatile)** — conversational question rephrasing, empathetic summary generation
 - **OpenCV + MediaPipe** — face detection, landmark localization
 - **pytorch-grad-cam** — Grad-CAM heatmap visualization
+- **ffmpeg** — audio format conversion (WAV, MP3, M4A, OGG, FLAC → pipeline)
 - **python-dotenv** — API key management
 - **Docker** — containerized deployment
 
@@ -81,7 +82,7 @@ A multimodal AI-based mental well-being screening system combining **facial expr
 ```
 talk2mind/
 ├── api/
-│   ├── main.py                     # FastAPI backend (4 endpoints)
+│   ├── main.py                     # FastAPI backend (5 endpoints)
 │   └── schemas.py                  # Pydantic request/response models
 ├── app/
 │   ├── dashboard.py                # Streamlit dashboard (with Grad-CAM)
@@ -130,6 +131,7 @@ talk2mind/
 
 - Python 3.11+ (tested on 3.14)
 - pip
+- ffmpeg (for audio format conversion — `brew install ffmpeg` on macOS)
 - (optional) Docker for containerized deployment
 
 ### 2. Clone and install
@@ -138,12 +140,6 @@ talk2mind/
 git clone https://github.com/yourusername/talk2mind.git
 cd talk2mind
 pip install -r requirements.txt
-```
-
-### 3. Additional dependencies
-
-```bash
-pip install fastapi uvicorn python-multipart python-dotenv groq soundfile grad-cam
 ```
 
 ### 4. Set up Groq API key (optional)
@@ -177,7 +173,7 @@ python src/facial/train_facial.py
 streamlit run app/dashboard.py
 ```
 
-Flow: enter a session ID → answer 9 PHQ-9 questions (one at a time with conversational phrasing) → take a webcam photo → upload a voice recording → view score, breakdown, Grad-CAM heatmap, AI summary, recommendations, and trend.
+Flow: enter a session ID → answer 9 PHQ-9 questions (one at a time with conversational phrasing) → take a webcam photo → upload a voice recording (WAV, MP3, M4A, OGG, FLAC) → view score, breakdown, Grad-CAM heatmap, AI summary, recommendations, and trend.
 
 ### FastAPI Backend
 
