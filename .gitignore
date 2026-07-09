@@ -1,0 +1,46 @@
+# Training data (FER-2013, CREMA-D)
+data/raw/
+
+# Generated features and split CSVs
+data/processed/
+
+# User session history (privacy sensitive)
+data/user_history/
+
+# Trained model checkpoints
+*.pt
+
+# Documentation artifacts (presentations, reports)
+documentation/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Jupyter notebooks
+*.ipynb
+notebooks/
+
+# Environment
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Generated evaluation outputs — keep tracked for reviewer visibility
+# evaluation/results/
